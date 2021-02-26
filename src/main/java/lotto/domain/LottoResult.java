@@ -1,5 +1,6 @@
 package lotto.domain;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -25,5 +26,9 @@ public class LottoResult {
     public long calculateProfitPercent() {
         return (calculatePrizeMoney() * 100)
                 / ((long) purchasePrice.getMoney());
+    }
+
+    public Map<Prize, Long> getLottoResult() {
+        return Collections.unmodifiableMap(lottoResult);
     }
 }

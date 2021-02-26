@@ -3,9 +3,14 @@ package lotto.controller;
 import lotto.domain.LottoResult;
 import lotto.domain.Money;
 import lotto.domain.PurchaseInfo;
+import lotto.domain.number.LottoNumber;
 import lotto.domain.number.LottoNumbers;
+import lotto.domain.ticket.LottoTicket;
 import lotto.domain.ticket.LottoTickets;
 import lotto.domain.ticket.WinningLottoTicket;
+import lotto.dto.LottoResultDto;
+import lotto.dto.LottoTicketDto;
+import lotto.dto.LottoTicketsDto;
 import lotto.service.LottoMachineService;
 import lotto.view.InputView;
 import lotto.view.OutputView;
@@ -39,12 +44,32 @@ public class LottoController {
                 lottoMachineService.getLottoPrice()
         );
 
-        outputView.printLottoResult(lottoResult);
+        outputView.printLottoResult(convertLottoResultToDto(lottoResult));
     }
 
     private void printTicketsCondition(PurchaseInfo purchaseInfo, LottoTickets lottoTickets) {
         outputView.printTicketsSize(purchaseInfo.numberOfManualLotto(), purchaseInfo.numberOfAutoLotto());
-        outputView.printAllLottoTickets(lottoTickets);
+        outputView.printAllLottoTickets(convertLottoTicketsToDto(lottoTickets));
+    }
+
+    private LottoResultDto convertLottoResultToDto(LottoResult lottoResult) {
+        return new LottoResultDto(lottoResult.getLottoResult(), lottoResult.calculateProfitPercent());
+    }
+
+    private LottoTicketsDto convertLottoTicketsToDto(LottoTickets lottoTickets) {
+        List<LottoTicketDto> lottoTicketDtos = lottoTickets.list().stream().map(LottoTicket::list)
+                .map(this::convertLottoNumbersToIntegerList)
+                .map(LottoTicketDto::new)
+                .collect(toList());
+
+        return new LottoTicketsDto(lottoTicketDtos);
+    }
+
+    private List<Integer> convertLottoNumbersToIntegerList(List<LottoNumber> lottoNumbers) {
+        return lottoNumbers.stream()
+                .mapToInt(lottoNumber -> Integer.parseInt(lottoNumber.toString()))
+                .boxed()
+                .collect(toList());
     }
 
     private PurchaseInfo inputMoneyAndNumberOfManualLotto() {

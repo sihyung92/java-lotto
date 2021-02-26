@@ -1,9 +1,9 @@
 package lotto.view;
 
-import lotto.domain.LottoResult;
 import lotto.domain.Prize;
-import lotto.domain.ticket.LottoTicket;
-import lotto.domain.ticket.LottoTickets;
+import lotto.dto.LottoResultDto;
+import lotto.dto.LottoTicketDto;
+import lotto.dto.LottoTicketsDto;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -24,38 +24,38 @@ public class OutputView {
         System.out.printf(INFORM_SIZE_MSG, manualSize, autoSize);
     }
 
-    public void printAllLottoTickets(LottoTickets lottoTickets) {
-        lottoTickets.list().forEach(lottoTicket ->
+    public void printAllLottoTickets(LottoTicketsDto lottoTicketsDto) {
+        lottoTicketsDto.getLottoTickets().forEach(lottoTicket ->
                 System.out.println(makeEachLottoTicketToString(lottoTicket))
         );
     }
 
-    private String makeEachLottoTicketToString(LottoTicket lottoTicket) {
-        return lottoTicket.list().stream()
+    private String makeEachLottoTicketToString(LottoTicketDto lottoTicketDto) {
+        return lottoTicketDto.getNumbers().stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(COMMA, TICKET_PREFIX, TICKET_SUFFIX));
     }
 
-    public void printLottoResult(LottoResult lottoResult) {
+    public void printLottoResult(LottoResultDto lottoResultDto) {
         System.out.println(WINNING_STATISTICS);
         System.out.println(DASHES);
-        printWinningResult(lottoResult);
-        printProfitRatio(lottoResult.calculateProfitPercent());
+        printWinningResult(lottoResultDto);
+        printProfitRatio(lottoResultDto.getProfitPercent());
     }
 
-    public void printWinningResult(LottoResult lottoResult) {
+    public void printWinningResult(LottoResultDto lottoResultDto) {
         Arrays.stream(Prize.values())
                 .filter(prize -> prize != Prize.LOSING)
                 .sorted(Comparator.comparing(Prize::getRank))
                 .sorted(Comparator.reverseOrder())
                 .forEach(prize ->
-                        System.out.println(makeWinningResultMessage(prize, lottoResult))
+                        System.out.println(makeWinningResultMessage(prize, lottoResultDto))
                 );
     }
 
-    public String makeWinningResultMessage(Prize prize, LottoResult lottoResult) {
+    public String makeWinningResultMessage(Prize prize, LottoResultDto lottoResultDto) {
         return String.format(findFormat(prize), prize.getMatchCount(), prize.getPrizeMoney(),
-                lottoResult.get(prize));
+                lottoResultDto.getPrizeAndCount().getOrDefault(prize, 0L));
     }
 
     public String findFormat(Prize prize) {
